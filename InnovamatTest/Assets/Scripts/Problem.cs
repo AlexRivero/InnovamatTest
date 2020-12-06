@@ -1,17 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using TMPro;
-using UnityEngine;
+﻿public enum TextState { IN, STAY, OUT, NONE };
 
-[System.Serializable]
-public struct Answer
-{
-    public int id;
-    public bool isCorrect;
-    public TextMeshProUGUI text;
-}
-
-[System.Serializable]
 public abstract class Problem
 {
     public enum ProblemState { WORDING, ANSWERS };
@@ -19,15 +7,18 @@ public abstract class Problem
     protected string wording;
     //protected List<int> Answers;
 
-    public ProblemState problemState;
-    public TextState wordingState;
-    public TextState answersState;
+    public ProblemState problemState;   //State of the problem: WORDING = the wording is being shown || ANSWERS = the wording is gone and answers are being shown
+    public TextState wordingState;      //State of the wording: IN = activate In animation || OUT = activate Out animation || STAY = keep showing || NONE: default
+    public TextState answersState;      //State of the answers: IN = activate In animation || OUT = activate Out animation || STAY = keep showing || NONE: default
 
     public abstract void GenerateAnswers(int answersNum);
-    public abstract void Resolve();
     public abstract bool CheckAnswer(int answerID);
 
-    public void ChangeStatus()
+    public abstract string GetAnswers(int index);
+    public abstract int GetCorrectIndex();
+
+    //Changes problem's state
+    public void ChangeState()
     {
         if (problemState == ProblemState.WORDING)
         {

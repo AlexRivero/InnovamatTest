@@ -1,32 +1,27 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
-[System.Serializable]
 public class NumbersProblem : Problem
 {
-    [SerializeField] private List<int> Answers;
-    [SerializeField] private int correctAnswer;
-    [SerializeField] private int correctIndex;
-    private int maxAnswerRange = 11;
+    private List<int> Answers;              //List of answers
+    private int correctAnswer;              //Correct answer to the problem
+    private int correctIndex;               //Index of Answers' List where the correct answer is
+    private int maxAnswerRange = 11;        //MaxNum for random answers
 
+    //Constructor
     public NumbersProblem(string word, int correct)
     {
         Answers = new List<int>();
         wording = word;
-        //wordingState = TextState.IN;
-        //answersState = TextState.NONE;
         correctAnswer = correct;
         correctIndex = -1;
     }
 
+    //Creates random answers and put both (random and correct) in the Answers list
     public override void GenerateAnswers(int answersNum)
     {
-        Debug.Log("Correct Answer is: " + correctAnswer);
-
         //Chose a random index where the correct answer will be, and insert in the list
         correctIndex = Random.Range(0, answersNum);
-        Debug.Log("Correct answer will be at index: " + correctIndex);
 
         for (int i = 0; i < answersNum; i++)
         {
@@ -40,15 +35,14 @@ public class NumbersProblem : Problem
                 do
                 {
                     randomAnswer = Random.Range(0, maxAnswerRange);
-                } while (randomAnswer == correctAnswer);
+                } while (randomAnswer == correctAnswer || Answers.Contains(randomAnswer));
 
                 Answers.Add(randomAnswer);
             }
-
-            Debug.Log("Added answer: " + Answers[i]);
         }
     }
 
+    //Checks if the selected answer is correct
     public override bool CheckAnswer(int answerID)
     {
         if (answerID == correctIndex)
@@ -59,8 +53,15 @@ public class NumbersProblem : Problem
         return false;
     }
 
-    public override void Resolve()
+    //Returns an answer from Answers (at given index)
+    public override string GetAnswers(int index)
     {
-        //TODO
+        return Answers[index].ToString();
+    }
+
+    //Returns the correct answer's index
+    public override int GetCorrectIndex()
+    {
+        return correctIndex;
     }
 }

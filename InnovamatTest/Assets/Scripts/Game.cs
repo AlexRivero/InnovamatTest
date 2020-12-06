@@ -1,48 +1,44 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using TMPro;
 using UnityEngine.UI;
-
-public enum TextState { IN, STAY, OUT, NONE };
 
 public class Game : MonoBehaviour
 {
     public enum ProblemTyp { NUMBERS, CALCULATION };
 
     [Header("Settings")]
-    [SerializeField] private int maxErrades = 2;
-    [SerializeField] private int answersNum = 3;
+    [SerializeField] private int maxErrades = 2;                //Max number of tries
+    [SerializeField] private int answersNum = 3;                //Number of answers to show
 
-    [SerializeField] private float wordingTimeIn = 2f;
-    [SerializeField] private float wordingTimeStay = 2f;
-    [SerializeField] private float wordingTimeOut = 2f;
+    [SerializeField] private float wordingTimeIn = 2f;          //Time for wording's In animation
+    [SerializeField] private float wordingTimeStay = 2f;        //Time wording will be showed for
+    [SerializeField] private float wordingTimeOut = 2f;         //Time for wording's Out animation
 
-    [SerializeField] private float AnswersTimeIn = 2f;
-    [SerializeField] private float AnswersTimeOut = 2f;
+    [SerializeField] private float AnswersTimeIn = 2f;          //Time for answers' In animation
+    [SerializeField] private float AnswersTimeOut = 2f;         //Time for answers' Out animation
 
     [Header("Score")]
-    [SerializeField] private int encerts;
-    [SerializeField] private int errades;
-    [SerializeField] private int currentErrades;
+    [SerializeField] private int encerts;               //Number of passed problems
+    [SerializeField] private int errades;               //Number of failed problems
+    [SerializeField] private int currentErrades;        //Number of current failed tries
 
 
-    public Problem problem;
+    private Problem problem;
 
     [Header("Timers")]
-    [SerializeField] private float wordingInTimer;
-    [SerializeField] private float wordingStayTimer;
-    [SerializeField] private float wordingOutTimer;
+    [SerializeField] private float wordingTimer;    //Timer to control wording animations
+    [SerializeField] private bool wordingIn;        //Bool to control if wording is being shown
 
-    [SerializeField] private float answersInTimer;
-    [SerializeField] private float answersOutTimer;
+    [SerializeField] private float answersTimer;    //Timer to control answer buttons animations
+    [SerializeField] private bool answersIn;        //Bool to control if answer buttons are being shown
 
     [Header("References")]
-    public ProblemScriptableObject ProblemsData;
+    public ProblemScriptableObject ProblemsData;    //ScriptableObject from where we take the problem
     public Text Wording;
-    public List<GameObject> AnswersButtons;
-    public TextMeshProUGUI EncertsNum;
-    public TextMeshProUGUI ErradesNum;
+    public List<GameObject> AnswersButtons;         //List of answer buttons
+    public Text EncertsNum;                         //Reference to number of passed problems text
+    public Text ErradesNum;                         //Reference to number of failed problems text
 
 
     // Start is called before the first frame update
@@ -52,10 +48,11 @@ public class Game : MonoBehaviour
         errades = 0;
         currentErrades = 0;
 
+        answersIn = false;
+        wordingIn = false;
+
         CreateProblem();
         UpdateScore();
-
-        Wording.color = new Color(255f, 255f, 255f, 0f);
     }
 
     // Update is called once per frame
@@ -67,37 +64,41 @@ public class Game : MonoBehaviour
                 switch (problem.wordingState)
                 {
                     case TextState.IN:
-                        if (wordingInTimer >= wordingTimeIn)    //Change to next state
-                            problem.wordingState = TextState.STAY;
-                        else
+                        //Wording fades in
+                        if (!wordingIn)
                         {
-                            wordingInTimer += Time.deltaTime;
+                            StartCoroutine(WordingFade(0f, 1f, wordingTimeIn));
+                            wordingIn = true;
+                        }
 
-                            //Wording Fade In
-                            Wording.color = new Color(Wording.color.r, Wording.color.g, Wording.color.b, FadeInOut(0f, 1f, wordingInTimer, wordingTimeIn));
+                        //Change to next state
+                        if (wordingTimer >= wordingTimeIn)
+                        {
+                            problem.wordingState = TextState.STAY;
                         }
                         break;
 
                     case TextState.STAY:
-                        wordingStayTimer += Time.deltaTime;
-                        if (wordingStayTimer >= wordingTimeStay)
+                        //Wording stays for wordingTimeStay seconds and then changes to next state
+                        wordingTimer += Time.deltaTime;
+                        if (wordingTimer >= wordingTimeStay)
+                        {
                             problem.wordingState = TextState.OUT;
+                        }
                         break;
 
                     case TextState.OUT:
-                        if (wordingOutTimer >= wordingTimeOut)
+                        //Wording fades out
+                        if (wordingIn)
                         {
-                            //problem.wordingState = TextState.NONE;
-                            //ResetTimers();
-                            problem.ChangeStatus();
-                            //CreateProblem();    //For testing purposes
+                            StartCoroutine(WordingFade(1f, 0f, wordingTimeOut));
+                            wordingIn = false;
                         }
-                        else
-                        {
-                            wordingOutTimer += Time.deltaTime;
 
-                            //Wording Fade Out
-                            Wording.color = new Color(Wording.color.r, Wording.color.g, Wording.color.b, FadeInOut(1f, 0f, wordingOutTimer, wordingTimeOut));
+                        //Change problem state, so Answers can appear
+                        if (wordingTimer >= wordingTimeOut)
+                        {
+                            problem.ChangeState();
                         }
                         break;
                 }
@@ -107,44 +108,32 @@ public class Game : MonoBehaviour
                 switch (problem.answersState)
                 {
                     case TextState.IN:
-                        if (answersInTimer < AnswersTimeIn)
+                        //Answers fade in
+                        if (!answersIn)
                         {
-                            answersInTimer += Time.deltaTime;
+                            StartCoroutine(AllAnswerFade(0f, 1f, AnswersTimeIn));
 
-                            foreach (GameObject obj in AnswersButtons)
-                            {
-                                //Fade In buttons
-                                Color img = obj.GetComponent<Image>().color;
-                                obj.GetComponent<Image>().color = new Color(img.r, img.g, img.b, FadeInOut(0f, 1f, answersInTimer, AnswersTimeIn));
-
-                                Color txt = obj.GetComponentInChildren<Text>().color;
-                                obj.GetComponentInChildren<Text>().color = new Color(txt.r, txt.g, txt.b, FadeInOut(0f, 1f, answersInTimer, AnswersTimeIn));
-                            }
+                            answersIn = true;
                         }
-                        else
+
+                        //Change to next state
+                        if (answersTimer >= AnswersTimeIn)
                             problem.answersState = TextState.STAY;
                         break;
 
                     case TextState.OUT:
-                        if (answersOutTimer < AnswersTimeOut)
+                        //Answers fade out
+                        if (answersIn)
                         {
-                            answersOutTimer += Time.deltaTime;
-
-                            foreach (GameObject obj in AnswersButtons)
-                            {
-                                //Fade In buttons
-                                Color img = obj.GetComponent<Image>().color;
-                                obj.GetComponent<Image>().color = new Color(img.r, img.g, img.b, FadeInOut(1f, 0f, answersOutTimer, AnswersTimeOut));
-
-                                Color txt = obj.GetComponentInChildren<Text>().color;
-                                obj.GetComponentInChildren<Text>().color = new Color(txt.r, txt.g, txt.b, FadeInOut(1f, 0f, answersOutTimer, AnswersTimeOut));
-                            }
+                            StartCoroutine(AllAnswerFade(1f, 0f, AnswersTimeOut));
+                            answersIn = false;
                         }
-                        else
+
+                        //New problem
+                        if (answersTimer >= AnswersTimeOut)
                         {
-                            ResetTimers();
                             ResetButtons();
-                            problem.ChangeStatus();
+                            problem.ChangeState();
                             CreateProblem();
                         }
                         break;
@@ -153,16 +142,7 @@ public class Game : MonoBehaviour
         }
     }
 
-    void ResetTimers()
-    {
-        wordingInTimer = 0;
-        wordingOutTimer = 0;
-        wordingStayTimer = 0;
-
-        answersInTimer = 0;
-        answersOutTimer = 0;
-    }
-
+    //Initializes a new problem
     void CreateProblem()
     {
         //Initialize problem
@@ -170,16 +150,23 @@ public class Game : MonoBehaviour
         problem = new NumbersProblem(ProblemsData.Problems[problemIndex].wording, ProblemsData.Problems[problemIndex].correctAnswer);
         problem.GenerateAnswers(answersNum);
 
-        //Set textmesh
+        //Set wording text
         Wording.text = ProblemsData.Problems[problemIndex].wording;
+
+        //Set answers text
+        for (int i = 0; i < answersNum; i++)
+        {
+            AnswersButtons[i].GetComponentInChildren<Text>().text = problem.GetAnswers(i);
+        }
     }
 
+    //Called whenever the user clicks on an answer
     public void OnAnswerClick(int index)
     {
         if (problem.answersState == TextState.STAY)
         {
             bool correct = problem.CheckAnswer(index);
-            if (correct)
+            if (correct)    //if answer is correct
             {
                 encerts++;
                 AnswersButtons[index].GetComponent<Image>().color = Color.green;
@@ -188,16 +175,24 @@ public class Game : MonoBehaviour
             }
             else
             {
-                errades++;
+                //User still has tries left
                 if (currentErrades < maxErrades - 1)
                 {
-                    //TODO
-                    //Fade out of that option
+                    AnswersButtons[index].GetComponent<Image>().color = Color.red;
+                    StartCoroutine(SingleAnswerFade(index, 1f, 0f, AnswersTimeOut));
+
+                    //User loses one try
                     currentErrades++;
                 }
-                else
+                else  //User is out of tries
                 {
+                    //Increase wrong answers
+                    errades++;
+
+                    //Change answers' state and reset current tries
                     problem.answersState = TextState.OUT;
+                    AnswersButtons[index].GetComponent<Image>().color = Color.red;
+                    AnswersButtons[problem.GetCorrectIndex()].GetComponent<Image>().color = Color.green;
                     currentErrades = 0;
                 }
             }
@@ -207,25 +202,84 @@ public class Game : MonoBehaviour
 
     }
 
+    //Resets buttons' color
     private void ResetButtons()
     {
         foreach (GameObject button in AnswersButtons)
         {
             button.GetComponent<Image>().color = new Color(1, 1, 1, 0);
+            button.SetActive(true);
         }
     }
 
+    //Updates HUD score
     private void UpdateScore()
     {
         EncertsNum.text = encerts.ToString();
         ErradesNum.text = errades.ToString();
     }
 
-    private float FadeInOut(float init, float final, float timer, float duration)
+    //IEnumerator to animate a single answer's button
+    IEnumerator SingleAnswerFade(int index, float init, float final, float duration)
     {
-        float a;
-        a = Mathf.Lerp(init, final, timer / duration);
-        return a;
+        answersTimer = 0;
+        while (answersTimer < duration)
+        {
+            answersTimer += Time.deltaTime;
+
+            Color img = AnswersButtons[index].GetComponent<Image>().color;
+            Color txt = AnswersButtons[index].GetComponentInChildren<Text>().color;
+
+            float a = Mathf.Lerp(init, final, answersTimer / duration);
+
+            AnswersButtons[index].GetComponent<Image>().color = new Color(img.r, img.g, img.b, a);
+            AnswersButtons[index].GetComponentInChildren<Text>().color = new Color(txt.r, txt.g, txt.b, a);
+
+            yield return null;
+        }
+
+        AnswersButtons[index].SetActive(false);
     }
 
+    //IEnumerator to animate all answers' buttons
+    IEnumerator AllAnswerFade(float init, float final, float duration)
+    {
+        answersTimer = 0;
+        while (answersTimer < duration)
+        {
+            answersTimer += Time.deltaTime;
+
+            float a = Mathf.Lerp(init, final, answersTimer / duration);
+
+            foreach (GameObject obj in AnswersButtons)
+            {
+                Color img = obj.GetComponent<Image>().color;
+                Color txt = obj.GetComponentInChildren<Text>().color;
+
+                obj.GetComponent<Image>().color = new Color(img.r, img.g, img.b, a);
+                obj.GetComponentInChildren<Text>().color = new Color(txt.r, txt.g, txt.b, a);
+            }
+
+            yield return null;
+        }
+    }
+
+    //IEnumerator to animate wording
+    IEnumerator WordingFade(float init, float final, float duration)
+    {
+        wordingTimer = 0;
+
+        while (wordingTimer < duration)
+        {
+            wordingTimer += Time.deltaTime;
+
+            Color img = Wording.color;
+            float a = Mathf.Lerp(init, final, wordingTimer / duration);
+            Wording.color = new Color(img.r, img.g, img.b, a);
+
+            yield return null;
+        }
+
+        wordingTimer = 0;
+    }
 }
