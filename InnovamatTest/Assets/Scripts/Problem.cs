@@ -32,12 +32,14 @@ public abstract class Problem
         if (problemState == ProblemState.WORDING)
         {
             problemState = ProblemState.ANSWERS;
+            wordingState = TextState.NONE;
             answersState = TextState.IN;
         }
         else
         {
             problemState = ProblemState.WORDING;
             answersState = TextState.NONE;
+            wordingState = TextState.IN;
         }
     }
 }

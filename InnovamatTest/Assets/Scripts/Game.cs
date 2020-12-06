@@ -87,7 +87,7 @@ public class Game : MonoBehaviour
                     case TextState.OUT:
                         if (wordingOutTimer >= wordingTimeOut)
                         {
-                            problem.wordingState = TextState.NONE;
+                            //problem.wordingState = TextState.NONE;
                             //ResetTimers();
                             problem.ChangeStatus();
                             //CreateProblem();    //For testing purposes
@@ -141,7 +141,12 @@ public class Game : MonoBehaviour
                             }
                         }
                         else
+                        {
+                            ResetTimers();
+                            ResetButtons();
                             problem.ChangeStatus();
+                            CreateProblem();
+                        }
                         break;
                 }
                 break;
@@ -150,29 +155,23 @@ public class Game : MonoBehaviour
 
     void ResetTimers()
     {
-        wordingInTimer = wordingOutTimer = wordingStayTimer = 0f;
-    }
-
-    void CreateProblem()
-    {
         wordingInTimer = 0;
         wordingOutTimer = 0;
         wordingStayTimer = 0;
 
         answersInTimer = 0;
         answersOutTimer = 0;
+    }
 
-        //Wording.canvasRenderer.SetAlpha(0.01f);
-
+    void CreateProblem()
+    {
         //Initialize problem
         int problemIndex = Random.Range(0, ProblemsData.Problems.Count);
         problem = new NumbersProblem(ProblemsData.Problems[problemIndex].wording, ProblemsData.Problems[problemIndex].correctAnswer);
         problem.GenerateAnswers(answersNum);
-        //problem.InitializeProblem(ProblemsData.Problems[problemIndex], answersNum);
 
         //Set textmesh
         Wording.text = ProblemsData.Problems[problemIndex].wording;
-
     }
 
     public void OnAnswerClick(int index)
@@ -184,7 +183,6 @@ public class Game : MonoBehaviour
             {
                 encerts++;
                 AnswersButtons[index].GetComponent<Image>().color = Color.green;
-                CreateProblem();
                 problem.answersState = TextState.OUT;
                 currentErrades = 0;
             }
@@ -213,7 +211,7 @@ public class Game : MonoBehaviour
     {
         foreach (GameObject button in AnswersButtons)
         {
-            button.GetComponent<Image>().color = Color.white;
+            button.GetComponent<Image>().color = new Color(1, 1, 1, 0);
         }
     }
 

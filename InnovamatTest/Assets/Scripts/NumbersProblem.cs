@@ -14,8 +14,8 @@ public class NumbersProblem : Problem
     {
         Answers = new List<int>();
         wording = word;
-        wordingState = TextState.IN;
-        answersState = TextState.NONE;
+        //wordingState = TextState.IN;
+        //answersState = TextState.NONE;
         correctAnswer = correct;
         correctIndex = -1;
     }
