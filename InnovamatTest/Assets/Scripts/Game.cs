@@ -7,31 +7,28 @@ public class Game : MonoBehaviour
 {
     public enum ProblemTyp { NUMBERS, CALCULATION };
 
+    private int encerts;           //Number of passed problems
+    private int errades;           //Number of failed problems
+    private int currentErrades;    //Number of current failed tries
+
+    private float wordingTimer;    //Timer to control wording animations
+    private bool wordingIn;        //Bool to control if wording is being shown
+    private float answersTimer;    //Timer to control answer buttons animations
+    private bool answersIn;        //Bool to control if answer buttons are being shown
+
     [Header("Settings")]
     [SerializeField] private int maxErrades = 2;                //Max number of tries
     [SerializeField] private int answersNum = 3;                //Number of answers to show
 
+    private Problem problem;
+
+    [Header("Timers")]
     [SerializeField] private float wordingTimeIn = 2f;          //Time for wording's In animation
     [SerializeField] private float wordingTimeStay = 2f;        //Time wording will be showed for
     [SerializeField] private float wordingTimeOut = 2f;         //Time for wording's Out animation
 
     [SerializeField] private float AnswersTimeIn = 2f;          //Time for answers' In animation
     [SerializeField] private float AnswersTimeOut = 2f;         //Time for answers' Out animation
-
-    [Header("Score")]
-    [SerializeField] private int encerts;               //Number of passed problems
-    [SerializeField] private int errades;               //Number of failed problems
-    [SerializeField] private int currentErrades;        //Number of current failed tries
-
-
-    private Problem problem;
-
-    [Header("Timers")]
-    [SerializeField] private float wordingTimer;    //Timer to control wording animations
-    [SerializeField] private bool wordingIn;        //Bool to control if wording is being shown
-
-    [SerializeField] private float answersTimer;    //Timer to control answer buttons animations
-    [SerializeField] private bool answersIn;        //Bool to control if answer buttons are being shown
 
     [Header("References")]
     public ProblemScriptableObject ProblemsData;    //ScriptableObject from where we take the problem
