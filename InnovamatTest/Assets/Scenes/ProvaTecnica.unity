@@ -525,13 +525,6 @@ MonoBehaviour:
   wordingTimeOut: 2
   AnswersTimeIn: 1.5
   AnswersTimeOut: 0.5
-  encerts: 0
-  errades: 0
-  currentErrades: 0
-  wordingTimer: 0
-  wordingIn: 0
-  answersTimer: 0
-  answersIn: 0
   ProblemsData: {fileID: 11400000, guid: 279c6bc066755f447805806cc88abb6b, type: 2}
   Wording: {fileID: 1603894433}
   AnswersButtons:
@@ -950,9 +943,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 'Encerts
-
-'
+  m_Text: Errades
 --- !u!222 &1139843008
 CanvasRenderer:
   m_ObjectHideFlags: 0
