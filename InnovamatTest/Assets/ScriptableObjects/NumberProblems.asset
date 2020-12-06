@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0c1e3db464fe2174db24d82a170f6190, type: 3}
+  m_Name: NumberProblems
+  m_EditorClassIdentifier: 
+  Problems:
+  - wording: Zero
+    correctAnswer: 0
+  - wording: U
+    correctAnswer: 1
+  - wording: Dos
+    correctAnswer: 2
+  - wording: Tres
+    correctAnswer: 3
+  - wording: Quatre
+    correctAnswer: 4
+  - wording: Cinc
+    correctAnswer: 5
+  - wording: Sis
+    correctAnswer: 6
+  - wording: Set
+    correctAnswer: 7
+  - wording: Vuit
+    correctAnswer: 8
+  - wording: Nou
+    correctAnswer: 9
+  - wording: Deu
+    correctAnswer: 10
